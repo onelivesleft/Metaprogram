@@ -33,10 +33,33 @@ check_imports :: (message: *Message) {
     if message.kind == .FAILED_IMPORT {
         message_import := cast(*Message_Failed_Import) message;
         if message_import.status != .NOT_FOUND
-        || message_import.host_module_name
             return;
 
-        import, ok := parse_import(message_import.target_module_name);
+        target_module_name := message_import.target_module_name;
+
+        if message_import.host_module_name {
+            // If we're in a managed module which imports a sibling we need to remap that sibling
+            host_path_id := message_import.host_module_name;
+            bite(*host_path_id, #char "/");
+            if host_path_id  {
+                modules, found := table_find(downloaded_modules, host_path_id);
+                if found {
+                    found = false;
+                    for modules  if it == target_module_name {
+                        target_module_name = tprint("%/%", it, host_path_id);
+                        found = true;
+                        break;
+                    }
+                    if !found {
+                        print("[Import] %: Module not present in modules.lst\n", message_import.target_module_name);
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        import, ok := parse_import(target_module_name);
         if !ok {
             if contains(message_import.target_module_name, #char "/", #char ".")
                 print(#string __
@@ -57,22 +80,14 @@ __, "\e");
 
         path := find_downloaded_import(import, base_path);
         if path {
-            provide_import(message.workspace, message_import, .ABSOLUTE_PATH, path);
-            //provide_import(message.workspace, message_import, .ABSOLUTE_PATH, tprint("%1%2/module.jai", #filepath, path));
-
-            // File :: #import "File";
-            // provide_import(message.workspace, message_import, .FULL_TEXT, File.read_entire_file(tprint("%1%2/module.jai", #filepath, path)));
+            provide_import(message.workspace, message_import, .PATH_TO_DIRECTORY, path);
             return;
         }
         else {
             downloaded := download_import(import, base_path);
             path = find_downloaded_import(import, base_path);
             if path {
-                provide_import(message.workspace, message_import, .ABSOLUTE_PATH, path);
-                //provide_import(message.workspace, message_import, .ABSOLUTE_PATH, tprint("%1%2/module.jai", #filepath, path));
-
-                // File :: #import "File";
-                // provide_import(message.workspace, message_import, .FULL_TEXT, File.read_entire_file(tprint("%1%2/module.jai", #filepath, path)));
+                provide_import(message.workspace, message_import, .PATH_TO_DIRECTORY, path);
                 return;
             }
         }
@@ -86,6 +101,7 @@ Import :: struct {
     version: string;
     github_username: string;
     github_reponame: string;
+    local_path_id : string;
 }
 
 
@@ -103,8 +119,11 @@ parse_import :: (import_string: string) -> Import, ok: bool {
         import.is_local = false;
     }
 
+
     import.name, ok = bite(*import_string, #char "/");
     if !ok || !import.name return import, false;
+
+    import.local_path_id = import_string;
 
     import.version, ok = bite(*import_string, #char "/");
     if !ok || !import.version return import, false;
@@ -114,6 +133,7 @@ parse_import :: (import_string: string) -> Import, ok: bool {
 
     import.github_username = import_string;
     if !ok || !import.github_username return import, false;
+
 
     return import, true;
 }
@@ -125,16 +145,9 @@ find_downloaded_import :: (import: Import, base_directory: string) -> string {
     if !file_exists(base_directory)  return "";
 
     path := import_path(import, base_directory);
-    version_path := parent_path(path);
-    modules, found := table_find(downloaded_modules, version_path); // @TODO only do this if host_module_name is here
-    if found {
-        for modules  if it == import.name  return path;
-        print("[Import] %: Module not present in modules.lst\n", import.name);
-        return "";
-    }
-
     if !file_exists(path)  return "";
 
+    version_path := parent_path(path);
     modules_list_path := tprint("%/%", version_path, modules_list_filename);
     if !file_exists(modules_list_path) {
         print("[Import] %: Error processing local module import. Missing file: %\n", import.name, modules_list_path);
@@ -152,11 +165,11 @@ find_downloaded_import :: (import: Import, base_directory: string) -> string {
                 array_free(modules_present);
                 return "";
             }
-            array_add(*modules_present, import.name);
+            array_add(*modules_present, module_name);
         }
         if !modules_list_text  break;
     }
-    table_set(*downloaded_modules, version_path, modules_present);
+    table_set(*downloaded_modules, import.local_path_id, modules_present);
 
     return path;
 }
@@ -197,8 +210,9 @@ download_import :: (import: Import, base_directory: string) -> bool {
     }
 
     if exit_code {
-        print("\n[Import] %: Error while running: %\n", command);
-        print("\n%\n", error_string);
+        print("\n[Import] %: Error while running: ", import.name);
+        print_joined(command);
+        print("\n\n%\n", error_string);
         return false;
     }
 
@@ -240,12 +254,12 @@ bite :: (s: *string, c: u8) -> left: string, found: bool {
 
 trimmed_bite :: (s: *string, c: u8) -> left: string, found: bool {
     left, found := bite(s, c);
-    if !found  return left, false;
+    if !found  left = <<s;
 
     start_index := 0;
     while start_index < left.count && left[start_index] <= #char " "
         start_index += 1;
-    if start_index >= s.count  return "", true;
+    if start_index >= left.count  return "", true;
 
     end_index := left.count - 1;
     while end_index > start_index && left[end_index] <= #char " "
@@ -294,4 +308,12 @@ last_index :: (s: string, c: u8) -> int, bool {
 
 ends_with :: (s: string, c: u8) -> bool {
     return s && s[s.count - 1] == c;
+}
+
+print_joined :: (words: [] string) {
+    for word: words {
+        if it_index print(" ");
+        print(word);
+    }
+    print("\n");
 }

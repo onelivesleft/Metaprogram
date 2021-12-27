@@ -1,6 +1,6 @@
 // Workspace: Main
 __new_command_line_strings : [1] string : .[
-    "c:\\Repos\\jai-misc\\Metaprogram\\test.jai",
+    "c:\\Repos\\Metaprogram\\Metaprogram\\bug.jai",
 ];
 __new_command_line_arguments : [1] *u8;
 #run {

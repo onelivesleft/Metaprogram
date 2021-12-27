@@ -1,13 +1,16 @@
 #scope_module
 
+// Options
 
 manage_imports :: true;
-#if OS == .WINDOWS  downloaded_modules_folder :: "c:\\jai\\modules_downloaded";
+#if OS == .WINDOWS  downloaded_modules_folder :: "c:/jai/modules_downloaded";
 else                downloaded_modules_folder :: "~/jai/modules_downloaded";
 
-check_for_reallocatable_pointers :: Option.OFF;
-log_messages                     :: false;
+check_for_reallocatable_pointers : Option : .OFF;
+log_messages :: false;
 
+
+// Code
 
 Option :: enum {
     OFF;
@@ -381,8 +384,8 @@ check_message :: (message: *Message) {
         check_reallocatable_pointers(message);
     }
 
-    #load "log_messages.jai";
     #if log_messages {
+        #load "log_messages.jai";
         log_message(message);
     }
 }
