@@ -1,0 +1,17 @@
+--- "c:\\jai\\modules\\Default_Metaprogram.jai"	2021-12-17 20:46:24.504153500 +0000
++++ Default_Metaprogram.jai	2021-12-17 20:22:59.581587700 +0000
+@@ -177,6 +177,14 @@
+             // For now we'll just report how much code has been typechecked.
+             do_error_checking(message, check_bindings = check_bindings);
+ 
++            {
++                // This file is a copy of:
++                // `Default_Metaprogram.jai` version `beta 0.0.099`
++                // ... but with this block added.
++                metaprogram :: #import "Metaprogram";
++                metaprogram.check_message(message);
++            }
++
+           case .COMPLETE;
+             finish_error_checking();
+             // The compiler sends us this message when compilation is finished.
