@@ -68,7 +68,6 @@ log :: (node: *Code_Node) {
             case .STRUCT;  print("%\n", <<cast(*Code_Struct)node);
             case .COMMA_SEPARATED_ARGUMENTS;  print("%\n", <<cast(*Code_Comma_Separated_Arguments)node);
             case .EXTRACT;  print("%\n", <<cast(*Code_Extract)node);
-            case .SEQUENCE;  print("%\n", <<cast(*Code_Sequence)node);
             case .MAKE_VARARGS;  print("%\n", <<cast(*Code_Make_Varargs)node);
             case .DECLARATION;  print("%\n", <<cast(*Code_Declaration)node);
             case .CAST;  print("%\n", <<cast(*Code_Cast)node);
@@ -253,11 +252,6 @@ for_expansion :: (root_node: *Code_Node, body: Code, flags: For_Flags) #expand {
             case .EXTRACT;
             node_extract := <<cast(*Code_Extract)node;
             add(node_extract.from);
-
-            case .SEQUENCE;
-            node_sequence := <<cast(*Code_Sequence)node;
-            for node_sequence.expressions  add(it);
-            //expression_i_replaced?
 
             case .MAKE_VARARGS;
             node_make_varargs := <<cast(*Code_Make_Varargs)node;
