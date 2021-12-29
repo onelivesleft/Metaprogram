@@ -6,9 +6,7 @@ An upgraded version of `Default_Metaprogram`.  To use it either copy the `Metapr
         if !message break;
 
         {
-            // This file is a copy of:
-            // `Default_Metaprogram.jai` version `beta 0.0.101`
-            // ...but with this block added.
+            // User-added block for Metaprogram module, non-standard!
             metaprogram :: #import "Metaprogram";
             metaprogram.check_message(message);
         }

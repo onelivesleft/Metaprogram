@@ -254,7 +254,10 @@ bite :: (s: *string, c: u8) -> left: string, found: bool {
 
 trimmed_bite :: (s: *string, c: u8) -> left: string, found: bool {
     left, found := bite(s, c);
-    if !found  left = <<s;
+    if !found {
+        left = <<s;
+        <<s = "";
+    }
 
     start_index := 0;
     while start_index < left.count && left[start_index] <= #char " "
