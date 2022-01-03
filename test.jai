@@ -1,8 +1,23 @@
 #import "Basic";
-#import "Strings/v1.0.8/jai-string.onelivesleft";
 
+//#import "Strings|modules/onelivesleft/jai-string/v1.0.8/";
+Test :: #import "TestModule|";
+
+//#import "Plot";
+//#import "Strings";
+//width : s32 : 800;
+//height : s32 : 600;
 
 main :: () {
-    for word: split("Hello world", #char " ")
-        print("%\n", word);
+    print("%\n", Test.foo);
+    //for word: split("Hello world", #char " ")
+    //    print("%\n", word);
+
+//    plot_start(width, height);
+//
+//    block(100, 100, 700, 500, colors.red);
+//    disc(width/2, height/2, 100, colors.yellow);
+//    circle(width/2, height/2, 100, colors.cyan);
+//
+//    plot_done();
 }

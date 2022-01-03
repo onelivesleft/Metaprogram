@@ -6,7 +6,9 @@ manage_imports :: true;
 #if OS == .WINDOWS  downloaded_modules_folder :: "c:/jai/modules_downloaded";
 else                downloaded_modules_folder :: "~/jai/modules_downloaded";
 
-check_for_reallocatable_pointers : Option : .OFF;
+check_for_reallocatable_pointers : Option : .WARNING;
+check_for_shadowing              : Option : .OFF; // @TODO not available yet!
+use_environment_variables :: true;
 log_messages :: false;
 
 
@@ -21,6 +23,7 @@ Option :: enum {
 
 #import "Basic";
 #import "Compiler";
+#load "environment.jai";
 
 
 report :: (node: *Code_Node, message: string, report_option: Option) {
@@ -362,6 +365,88 @@ for_expansion :: (root_node: *Code_Node, body: Code, flags: For_Flags) #expand {
 }
 
 
+contains :: (s: string, a: u8) -> bool {
+    for 0 .. s.count - 1  if s[it] == a  return true;
+    return false;
+}
+
+
+bite :: (s: *string, c: u8) -> left: string, found: bool {
+    for i: 0 .. s.count - 1 {
+        if (<<s)[i] == c {
+            left := <<s;
+            left.count = i;
+            advance(s, (i + 1));
+            return left, true;
+        }
+    }
+    return "", false;
+}
+
+
+trimmed_bite :: (s: *string, c: u8) -> left: string, found: bool {
+    left, found := bite(s, c);
+    if !found {
+        left = <<s;
+        <<s = "";
+    }
+
+    start_index := 0;
+    while start_index < left.count && left[start_index] <= #char " "
+        start_index += 1;
+    if start_index >= left.count  return "", true;
+
+    end_index := left.count - 1;
+    while end_index > start_index && left[end_index] <= #char " "
+        end_index -= 1;
+    end_index += 1;
+
+    return slice(left, start_index, end_index), true;;
+}
+
+
+slice :: (s: string, from: int, to: int) -> string {
+    if from < 0  from += s.count;
+    if from < 0  from = 0;
+    if to < 0  to += s.count;
+    if to <= from  return "";
+
+    result := s;
+    result.data += from;
+    result.count -= (from + result.count - to);
+    return result;
+}
+
+
+replace :: (s: *string, from: u8, to: u8) {
+    for 0 .. s.count - 1 {
+        if (<<s)[it] == from {
+            (<<s)[it] = to;
+        }
+    }
+}
+
+
+last_index :: (s: string, c: u8) -> int, bool {
+    for < i: s.count - 1 .. 0  if s[i] == c  return i, true;
+    return -1, false;
+}
+
+
+ends_with :: (s: string, c: u8) -> bool {
+    return s && s[s.count - 1] == c;
+}
+
+
+print_joined :: (words: [] string) {
+    for word: words {
+        if it_index print(" ");
+        print(word);
+    }
+    print("\n");
+}
+
+
 #scope_export
 
 
@@ -376,6 +461,11 @@ check_message :: (message: *Message) {
     #if check_for_reallocatable_pointers  {
         #load "check_reallocatable_pointers.jai";
         check_reallocatable_pointers(message);
+    }
+
+    #if check_for_shadowing {
+        #load "check_shadowing.jai";
+        check_shadowing(message);
     }
 
     #if log_messages {

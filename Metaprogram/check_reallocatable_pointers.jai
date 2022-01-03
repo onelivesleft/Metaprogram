@@ -16,6 +16,7 @@ check_reallocatable_pointers :: (message: *Message) {
 
     check_expression :: (expression: *Code_Node) {
         if !expression.enclosing_load
+        || !expression.enclosing_load.enclosing_import
         || expression.enclosing_load.enclosing_import.module_type != .MAIN_PROGRAM
             return;
 
