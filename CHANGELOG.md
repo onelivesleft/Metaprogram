@@ -1,3 +1,7 @@
+# v1.1.1 - 2022-01-06
+* Added `check_for_carriage_returns` option.
+* Added fourth choice for Option: `.FIX`
+
 # v1.1.0 - 2022-01-03
 * Changed github import format to `#import "Module|v#.#.#|repo.user"`
 * Added ability to import local file by specifying path, e.g. `#import "MyModule|c:/repos/modules"`

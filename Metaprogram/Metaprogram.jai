@@ -6,6 +6,7 @@ manage_imports :: true;
 #if OS == .WINDOWS  downloaded_modules_folder :: "c:/jai/modules_downloaded";
 else                downloaded_modules_folder :: "~/jai/modules_downloaded";
 
+check_for_carriage_return        : Option : .FIX;
 check_for_reallocatable_pointers : Option : .WARNING;
 check_for_shadowing              : Option : .OFF; // @TODO not available yet!
 use_environment_variables :: true;
@@ -18,6 +19,7 @@ Option :: enum {
     OFF;
     WARNING;
     ERROR;
+    FIX;
 }
 
 
@@ -427,6 +429,12 @@ replace :: (s: *string, from: u8, to: u8) {
 }
 
 
+first_index :: (s: string, a: u8) -> int, bool {
+    for 0 .. s.count - 1  if s[it] == a  return it, true;
+    return -1, false;
+}
+
+
 last_index :: (s: string, c: u8) -> int, bool {
     for < i: s.count - 1 .. 0  if s[i] == c  return i, true;
     return -1, false;
@@ -456,6 +464,11 @@ check_message :: (message: *Message) {
     #if manage_imports {
         #load "check_imports.jai";
         check_imports(message);
+    }
+
+    #if check_for_carriage_return  {
+        #load "check_carriage_return.jai";
+        check_carriage_return(message);
     }
 
     #if check_for_reallocatable_pointers  {

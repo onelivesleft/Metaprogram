@@ -1,15 +1,26 @@
-#import "Basic";
+//#import "Basic";
 
 //#import "Strings|modules/onelivesleft/jai-string/v1.0.8/";
-Test :: #import "TestModule|";
+//Test :: #import "TestModule|";
 
 //#import "Plot";
 //#import "Strings";
 //width : s32 : 800;
 //height : s32 : 600;
 
+short :: "a short string";
+long :: #string __
+a
+long
+string
+__
+
 main :: () {
-    print("%\n", Test.foo);
+    write_string(short);
+    write_string("\n");
+    write_string(long);
+    write_string("\n");
+  //  print("%\n", Test.foo);
     //for word: split("Hello world", #char " ")
     //    print("%\n", word);
 

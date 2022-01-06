@@ -30,6 +30,7 @@ You can toggle the metaprogram features by editing the constants at the top of `
 Features:
 * Use Environment Variables
 * Pointer-into-resizable-array check
+* Carriage-Return check
 * Managed Imports
 
 
@@ -45,6 +46,13 @@ When enabled the metaprogram will check for the following environment variables:
 ## Pointer into resizable array check
 
 Enable as either a `.WARNING` or `.ERROR`: it will try and detect when you take a pointer into a resizable array (`[..] $T`); such a pointer will become invalid when the array reallocates itself (which can happen any time you add to it).
+
+
+## Carriage-Return check
+
+When enabled as either `.WARNING` or `.ERROR` it will report any string literal which contains a carriage return (`\r`) character.
+When enabled as `.FIX` it will remove the carriage returns from the string. (WIP: currently it pads the end of the string with as many nulls as there were `\r`)
+You may mark a string with `@Contains_Carriage_Return` to have it ignore this check.
 
 
 ## Managed Imports
