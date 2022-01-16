@@ -6,10 +6,11 @@ manage_imports :: true;
 #if OS == .WINDOWS  downloaded_modules_folder :: "c:/jai/modules_downloaded";
 else                downloaded_modules_folder :: "~/jai/modules_downloaded";
 
-check_for_carriage_return        : Option : .FIX;
+check_for_carriage_return        : Option : .WARNING; // .FIX writes to the literal held by the compiler, and is not recommended by j_blow!
 check_for_reallocatable_pointers : Option : .WARNING;
 check_for_shadowing              : Option : .OFF; // @TODO not available yet!
 use_environment_variables :: true;
+use_build_string :: true;
 log_messages :: false;
 
 
@@ -25,7 +26,7 @@ Option :: enum {
 
 #import "Basic";
 #import "Compiler";
-#load "environment.jai";
+#load "compiler_options.jai";
 
 
 report :: (node: *Code_Node, message: string, report_option: Option) {
@@ -404,6 +405,17 @@ trimmed_bite :: (s: *string, c: u8) -> left: string, found: bool {
     end_index += 1;
 
     return slice(left, start_index, end_index), true;;
+}
+
+
+slice :: (s: string, from: int) -> string {
+    if from < 0  from += s.count;
+    if from < 0  from = 0;
+
+    result := s;
+    result.data += from;
+    result.count -= from;
+    return result;
 }
 
 

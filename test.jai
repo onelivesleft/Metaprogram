@@ -8,7 +8,7 @@
 //width : s32 : 800;
 //height : s32 : 600;
 
-short :: "a short string";
+short :: "a short \rstring";
 long :: #string __
 a
 long

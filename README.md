@@ -3,7 +3,7 @@
 An upgraded version of `Default_Metaprogram`.  To use it either copy the `Metaprogram` folder into your jai modules folder, or symlink it there.  Then edit the following code into the `modules/Default_Metaprogram.jai` file in the compiler.
 
 
-Above the line `files, run_strings := compiler_get_source_files();` add:
+Below the line `files, run_strings := compiler_get_source_files();` add:
 
 ```jai
     {
@@ -31,6 +31,7 @@ Features:
 * Use Environment Variables
 * Pointer-into-resizable-array check
 * Carriage-Return check
+* `build` string for single file programs
 * Managed Imports
 
 
@@ -53,6 +54,26 @@ Enable as either a `.WARNING` or `.ERROR`: it will try and detect when you take 
 When enabled as either `.WARNING` or `.ERROR` it will report any string literal which contains a carriage return (`\r`) character.
 When enabled as `.FIX` it will remove the carriage returns from the string. (WIP: currently it pads the end of the string with as many nulls as there were `\r`)
 You may mark a string with `@Contains_Carriage_Return` to have it ignore this check.
+
+
+## Build String
+
+Allows you to create a build script inside your program, so even a simple single-file program can set compiler options, check compiler messages, etc.
+
+Add a #string to your program called `build`, and it will be ran as a build script for your program.  For example:
+
+```jai
+build :: #string __jai
+    #import "Compiler";
+    build_options := get_build_options();
+    build_options.output_executable_name = "not_the_same_name.exe";
+
+    workspace := compiler_create_workspace();
+    set_build_options(build_options, workspace);
+
+    add_build_file(#file, workspace);
+__jai
+```
 
 
 ## Managed Imports

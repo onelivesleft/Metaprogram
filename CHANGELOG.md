@@ -1,3 +1,7 @@
+# v1.2.0 - 2022-01-16
+* Added `use_build_string`
+* Fixed `check_for_carriage_returns` so it only check inside a `#string`.
+
 # v1.1.1 - 2022-01-06
 * Added `check_for_carriage_returns` option.
 * Added fourth choice for Option: `.FIX`

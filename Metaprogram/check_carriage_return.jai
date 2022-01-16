@@ -27,6 +27,7 @@ check_carriage_return :: (message: *Message) {
 
             literal := cast(*Code_Literal) decl.expression;
             if literal.value_type != .STRING
+            || !(literal.value_flags & .HERE_STRING)
             || has_note(decl, contains_carriage_return)
                 return;
 
